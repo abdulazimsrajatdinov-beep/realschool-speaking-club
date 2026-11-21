@@ -204,6 +204,18 @@ footer .copy{width:100%;border-top:1px solid rgba(255,255,255,.08);margin-top:28
 .mok .big{width:84px;height:84px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:grid;place-items:center;margin:0 auto 22px}
 .mok p{color:var(--muted);margin-top:8px}
 @media(max-width:560px){.mbox{padding:32px 22px}.mbox h3{font-size:34px}}
+.dots{grid-template-columns:repeat(5,1fr);gap:8px}
+.dots i{background-size:cover;background-position:center;border:1px solid transparent}
+.dots i.ph{border-color:var(--gold)}
+.photo{display:flex;align-items:center;gap:16px}
+.photo .pv{width:72px;height:72px;border-radius:50%;flex:none;border:1px dashed var(--gold);background:#fff center/cover no-repeat;display:grid;place-items:center;color:var(--gold)}
+.photo .pv.has{border-style:solid}
+.photo .pv.has svg{display:none}
+.photo .pick{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:11px 18px;font:600 14px Manrope,sans-serif;color:var(--em7);background:#fff;cursor:pointer}
+.photo .pick:hover{border-color:var(--em5)}
+.photo .rm{border:0;background:none;color:var(--muted);font:500 13px Manrope,sans-serif;text-decoration:underline;cursor:pointer;display:none;margin-top:6px}
+.photo small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
@@ -340,6 +352,17 @@ footer .copy{width:100%;border-top:1px solid rgba(255,255,255,.08);margin-top:28
             <option>Sertifikat joq, dárejem 6.0+ shamasında</option>
           </select>
         </div>
+        <div><span class="lbl2" style="display:block;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--em7);margin-bottom:9px">Súwretińiz <span style="color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:none">(qálewińiz boyınsha)</span></span>
+          <div class="photo">
+            <div class="pv" id="pv"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div>
+              <label for="fPhoto" class="pick" style="margin:0;letter-spacing:0;text-transform:none">Súwret tańlaw</label>
+              <input id="fPhoto" class="sr" type="file" accept="image/*">
+              <button type="button" class="rm" id="pRm">Súwretti alıp taslaw</button>
+              <small>Súwretińiz saytta siz bronlaǵan orında kórinedi.</small>
+            </div>
+          </div>
+        </div>
         <p class="merr" id="mErr" role="alert"></p>
         <button type="submit" class="btn" id="mSubmit">Bronlaw <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </form>
@@ -362,19 +385,21 @@ footer .copy{width:100%;border-top:1px solid rgba(255,255,255,.08);margin-top:28
   var dots=document.getElementById('dots');
   for(var i=0;i<20;i++){dots.appendChild(document.createElement('i'));}
 
-  var SB='https://rgqruifzceraivheepdv.supabase.co/rest/v1/rpc/', KEY='sb_publishable_gBRWWzLrDY4KDpgPtlk2sg_sTFOxECS';
-  function rpc(fn,body){return fetch(SB+fn,{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
+  var BASE='https://rgqruifzceraivheepdv.supabase.co', SB=BASE+'/rest/v1/rpc/', KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncXJ1aWZ6Y2VyYWl2aGVlcGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2OTIwNDUsImV4cCI6MjEwNjI2ODA0NX0.MpyznvL-iux17MReoLJrXkFMlXrzPdLoXytow_IeM9k';
+  function rpc(fn,body){return fetch(SB+fn,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();});}
   var dateText=fmt(d); document.getElementById('mDate').textContent=dateText;
-  function show(free,cd){
+  var seats=[];
+  function show(free,cd,st){
+    if(st)seats=st;
     if(cd){var p=cd.split('-');dateText=fmt(new Date(+p[0],+p[1]-1,+p[2]));document.getElementById('nextDate').textContent=dateText;}
     document.getElementById('free').textContent=free;
     document.getElementById('mFree').textContent=free;
     document.getElementById('mDate').textContent=dateText;
-    var ds=dots.children;for(var i=0;i<ds.length;i++){ds[i].classList.toggle('on',i<20-free);}
+    var ds=dots.children;for(var i=0;i<ds.length;i++){var on=i<20-free,ph=on&&seats[i];ds[i].classList.toggle('on',on&&!ph);ds[i].classList.toggle('ph',!!ph);ds[i].style.backgroundImage=ph?"url('"+BASE+"/storage/v1/object/public/sc-photos/"+seats[i]+"')":'';}
     var b=document.getElementById('bookBtn');
     if(free<=0){b.disabled=true;b.firstChild.textContent='Orınlar tolı ';document.querySelector('.live').textContent='Orınlar tolı';}
   }
-  function load(){rpc('sc_status').then(function(s){show(s.free,s.club_date);}).catch(function(){});}
+  function load(){rpc('sc_status').then(function(s){show(s.free,s.club_date,s.seats);}).catch(function(){});}
   load();
 
   var modal=document.getElementById('modal'),form=document.getElementById('bookForm'),err=document.getElementById('mErr'),sub=document.getElementById('mSubmit');
@@ -387,20 +412,42 @@ footer .copy{width:100%;border-top:1px solid rgba(255,255,255,.08);margin-top:28
   modal.addEventListener('click',function(e){if(e.target===modal)closeM();});
   modal.addEventListener('keydown',function(e){if(e.key==='Escape')closeM();});
   function fail(t){err.textContent=t;err.style.display='block';}
+  var photoBlob=null,pv=document.getElementById('pv'),fPhoto=document.getElementById('fPhoto'),pRm=document.getElementById('pRm');
+  fPhoto.addEventListener('change',function(){
+    var f=fPhoto.files&&fPhoto.files[0];if(!f)return;
+    if(!/^image\//.test(f.type)){fail('Tek súwret faylın tańlań.');return;}
+    var img=new Image(),u=URL.createObjectURL(f);
+    img.onload=function(){
+      var m=480,sc=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');
+      c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);
+      c.toBlob(function(b){photoBlob=b;pv.style.backgroundImage="url('"+c.toDataURL('image/jpeg',.7)+"')";pv.classList.add('has');pRm.style.display='block';},'image/jpeg',.82);
+    };
+    img.onerror=function(){fail('Súwretti ashıw múmkin bolmadı. Basqa súwret tańlań.');};
+    img.src=u;
+  });
+  pRm.addEventListener('click',function(){photoBlob=null;fPhoto.value='';pv.style.backgroundImage='';pv.classList.remove('has');pRm.style.display='none';});
+  function uid(){if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(ch){var r=Math.random()*16|0;return (ch==='x'?r:(r&3|8)).toString(16);});}
+  function upload(){
+    if(!photoBlob)return Promise.resolve(null);
+    var name=uid()+'.jpg';
+    return fetch(BASE+'/storage/v1/object/sc-photos/'+name,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'image/jpeg','x-upsert':'false'},body:photoBlob})
+      .then(function(r){if(!r.ok)throw new Error('photo');return name;});
+  }
   form.addEventListener('submit',function(e){
     e.preventDefault();err.style.display='none';
-    var v={p_name:form.name.value.trim(),p_phone:form.phone.value.trim(),p_school:form.school.value.trim(),p_grade:form.grade.value.trim(),p_ielts:form.ielts.value};
+    var v={p_name:form.name.value.trim(),p_phone:form.phone.value.trim(),p_school:form.school.value.trim(),p_grade:form.grade.value.trim(),p_ielts:form.ielts.value,p_photo:null};
     if(v.p_name.length<3||v.p_phone.replace(/[^0-9]/g,'').length<7||!v.p_school||!v.p_grade||!v.p_ielts){fail('Barlıq qatarlardı toltırıń.');return;}
     sub.disabled=true;
-    rpc('sc_book',v).then(function(r){
+    upload().then(function(n){v.p_photo=n;return rpc('sc_book',v);},function(){throw new Error('photo');}).then(function(r){
       sub.disabled=false;
-      if(r.ok){show(r.free,r.club_date);document.getElementById('mForm').style.display='none';document.getElementById('mOk').style.display='block';
+      if(r.ok){if(v.p_photo){seats=seats.concat([v.p_photo]);}else{seats=seats.concat([null]);}show(r.free,r.club_date);load();document.getElementById('mForm').style.display='none';document.getElementById('mOk').style.display='block';
         document.getElementById('mOkText').textContent=v.p_name+', siz '+dateText+' bolatuǵın Speaking Club\'qa jazıldıńız.';return;}
       if(typeof r.free==='number')show(r.free,r.club_date);
       if(r.error==='full')fail('Keshirersiz, bul klubqa orınlar tolıp qaldı. Keyingi shembige qońıraw arqalı jazılıń.');
       else if(r.error==='duplicate')fail('Bul telefon nomeri menen orın aldın bronlanǵan.');
       else fail('Barlıq qatarlardı durıs toltırıń.');
-    }).catch(function(){sub.disabled=false;fail('Baylanısta qátelik boldı. Qaytadan urınıp kóriń yamasa qońıraw etiń.');});
+    }).catch(function(e){sub.disabled=false;fail(e&&e.message==='photo'?'Súwretti júklew múmkin bolmadı. Súwretsiz bronlap kóriń yamasa basqa súwret tańlań.':'Baylanısta qátelik boldı. Qaytadan urınıp kóriń yamasa qońıraw etiń.');});
   });
 
   var io='IntersectionObserver' in window ? new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12}) : null;
